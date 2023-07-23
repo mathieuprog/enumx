@@ -7,13 +7,11 @@ Additional utility functions to extend the power of Elixir's Enum module.
 Similar to `filter/2`, but returns the value of the function invocation instead of the element itself.
 
 ```elixir
-import Enumx, only: [filter_value: 2]
+assert Enumx.filter_value([1, 2, 3, 4, 5], &(&1 > 3 && &1 * 2)) == [8, 10]
 
-assert filter_value([1, 2, 3, 4, 5], &(&1 > 3 && &1 * 2)) == [8, 10]
+assert Enumx.filter_value([foo: 1, bar: 2, baz: 3], fn {k, v} -> v > 1 && k end) == [:bar, :baz]
 
-assert filter_value([foo: 1, bar: 2, baz: 3], fn {k, v} -> v > 1 && k end) == [:bar, :baz]
-
-assert filter_value(%{foo: 1, bar: 2, baz: 3}, fn {k, v} -> v > 1 && k end) == [:bar, :baz]
+assert Enumx.filter_value(%{foo: 1, bar: 2, baz: 3}, fn {k, v} -> v > 1 && k end) == [:bar, :baz]
 ```
 
 ## `all_equal?/1`
@@ -21,11 +19,9 @@ assert filter_value(%{foo: 1, bar: 2, baz: 3}, fn {k, v} -> v > 1 && k end) == [
 Returns `true` if all elements in `enumerable` are equal.
 
 ```elixir
-import Enumx, only: [all_equal?: 1]
+assert Enumx.all_equal?([1, 1])
 
-assert all_equal?([1, 1])
-
-assert all_equal?([foo: 1, foo: 1])
+assert Enumx.all_equal?([foo: 1, foo: 1])
 ```
 
 ## `unique_value!/1`
@@ -33,16 +29,18 @@ assert all_equal?([foo: 1, foo: 1])
 Returns `true` if all elements in `enumerable` are equal.
 
 ```elixir
-import Enumx, only: [unique_value!: 1]
+assert Enumx.unique_value!([1, 1]) == 1
 
-assert unique_value!([1, 1]) == 1
+assert Enumx.unique_value!(%{foo: 1}) == {:foo, 1}
 
-assert unique_value!(%{foo: 1}) == {:foo, 1}
-
-assert unique_value!([foo: 1, foo: 1]) == {:foo, 1}
+assert Enumx.unique_value!([foo: 1, foo: 1]) == {:foo, 1}
 
 assert_raise ArgumentError, fn ->
-  unique_value!([]) # raises error: cannot call `unique_value!/1` on an empty list
+  Enumx.unique_value!([]) # raises error: cannot call `unique_value!/1` on an empty list
+end
+
+assert_raise RuntimeError, fn ->
+  Enumx.unique_value!([1, 2]) # raises error: elements in the list [1, 2] are not equal
 end
 ```
 
