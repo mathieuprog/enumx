@@ -1,6 +1,9 @@
 # asdf
 .tool-versions
 
+.history/
+.lh/
+
 # IntelliJ IDEA
 /.idea/
 *.iml
