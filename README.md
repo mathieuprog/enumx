@@ -26,7 +26,7 @@ assert Enumx.all_equal?([foo: 1, foo: 1])
 
 ## `unique_value!/1`
 
-Returns `true` if all elements in `enumerable` are equal.
+Returns the single unique element if all elements in enumerable are equal; otherwise, raises an error.
 
 ```elixir
 assert Enumx.unique_value!([1, 1]) == 1
