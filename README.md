@@ -63,7 +63,7 @@ Add `enumx` for Elixir as a dependency in your `mix.exs` file:
 ```elixir
 def deps do
   [
-    {:enumx, "~> 0.2.0"}
+    {:enumx, "~> 0.3"}
   ]
 end
 ```
