@@ -21,10 +21,25 @@ defmodule Enumx do
   end
 
   @doc """
-  Ensures that all elements in `enumerable` are equal, otherwise raises an error.
-  If all elements are equal, it returns one of those elements.
+  Returns tuples of each element, its index, and the total length of the enumerable.
   """
-  def unique_value!([]), do: raise(ArgumentError, message: "cannot call `unique_value!/1` on an empty list")
+  def with_index_length(enum, fun_or_offset \\ 0)
+
+  def with_index_length(enum, fun) when is_function(fun, 3) do
+    length = length(enum)
+    Enum.with_index(enum, fn element, index -> fun.(element, index, length) end)
+  end
+
+  def with_index_length(enum, offset) when is_integer(offset) do
+    length = length(enum)
+    Enum.with_index(enum, fn element, index -> {element, index + offset, length} end)
+  end
+
+  @doc """
+  Returns the single unique element if all elements in enumerable are equal; otherwise, raises an error.
+  """
+  def unique_value!([]),
+    do: raise(ArgumentError, message: "cannot call `unique_value!/1` on an empty list")
 
   def unique_value!(list) when is_list(list) do
     if all_equal?(list) do

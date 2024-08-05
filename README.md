@@ -44,6 +44,18 @@ assert_raise RuntimeError, fn ->
 end
 ```
 
+## `with_index_length/2`
+
+Returns tuples of each element, its index, and the total length of the enumerable.
+
+```elixir
+assert [{3, 0, :foo}, {3, 1, :bar}, {3, 2, :baz}] ==
+          Enumx.with_index_length([:foo, :bar, :baz], fn el, i, length -> {length, i, el} end)
+
+assert [{:foo, 5, 3}, {:bar, 6, 3}, {:baz, 7, 3}] == 
+          Enumx.with_index_length([:foo, :bar, :baz], 5)
+```
+
 ### Installation
 
 Add `enumx` for Elixir as a dependency in your `mix.exs` file:
