@@ -81,8 +81,12 @@ defmodule EnumxTest do
     assert {:error, [], :element_not_found} ==
              shift_first_match_left([], %{id: 2}, &(&1.id == &2.id))
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
       shift_first_match_left(%{}, {:id, 2}, &(&1.id == &2.id))
+    end
+
+    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+      shift_first_match_left(MapSet.new([1, 2]), 2)
     end
 
     assert {:ok, [%{id: 2}, %{id: 4}, %{id: 7}], :shifted} ==
@@ -109,7 +113,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :element_not_found} ==
              shift_first_match_left(1..5, 8)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/not found/, fn ->
       shift_first_match_left!(entities, %{id: 8}, &(&1.id == &2.id))
     end
 
@@ -119,8 +123,12 @@ defmodule EnumxTest do
     assert {:error, [], :element_not_found} ==
              shift_first_match_right([], %{id: 2}, &(&1.id == &2.id))
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
       shift_first_match_right(%{}, {:id, 2}, &(&1.id == &2.id))
+    end
+
+    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+      shift_first_match_right(MapSet.new([1, 2]), 2)
     end
 
     assert {:ok, [%{id: 4}, %{id: 7}, %{id: 2}], :shifted} ==
@@ -144,7 +152,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :element_not_found} ==
              shift_first_match_right(1..5, 8)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/not found/, fn ->
       shift_first_match_right!(entities, %{id: 8}, &(&1.id == &2.id))
     end
 
@@ -161,8 +169,12 @@ defmodule EnumxTest do
     assert {:error, [], :index_out_of_bounds} ==
              shift_left_by_index([], 5)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
       shift_left_by_index(%{}, 5)
+    end
+
+    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+      shift_left_by_index(MapSet.new([1, 2]), 0)
     end
 
     assert {:ok, [%{id: 2}], :not_shifted} ==
@@ -186,7 +198,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :index_out_of_bounds} ==
              shift_left_by_index(1..5, 8)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/out of bounds/, fn ->
       shift_left_by_index!(entities, 3)
     end
 
@@ -199,8 +211,12 @@ defmodule EnumxTest do
     assert {:error, [], :index_out_of_bounds} ==
              shift_right_by_index([], 5)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
       shift_right_by_index(%{}, 5)
+    end
+
+    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+      shift_right_by_index(MapSet.new([1, 2]), 0)
     end
 
     assert {:ok, [%{id: 2}], :not_shifted} ==
@@ -230,7 +246,7 @@ defmodule EnumxTest do
     assert {:ok, [1, 2, 3, 4, 5], :not_shifted} ==
              shift_right_by_index(1..5, 4)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/out of bounds/, fn ->
       shift_right_by_index!(entities, 3)
     end
 
@@ -258,15 +274,15 @@ defmodule EnumxTest do
 
     assert [1, 4, 3, 2, 5] = swap!(1..5, 1, 3)
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/out of bounds/, fn ->
       swap!(entities, 1, 3)
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/out of bounds/, fn ->
       swap!(entities, 3, 1)
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise RuntimeError, ~r/out of bounds/, fn ->
       swap!(entities, 3, 3)
     end
   end

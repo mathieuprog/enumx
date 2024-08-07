@@ -61,6 +61,10 @@ defmodule Enumx do
     raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
   end
 
+  def shift_left_by_index(%MapSet{}, _index) do
+    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+  end
+
   def shift_left_by_index(enum, 0), do: {:ok, enum, :not_shifted}
 
   def shift_left_by_index(enum, index) do
@@ -91,6 +95,10 @@ defmodule Enumx do
 
   def shift_right_by_index(enum, _index) when is_plain_map(enum) do
     raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+  end
+
+  def shift_right_by_index(%MapSet{}, _index) do
+    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
   end
 
   def shift_right_by_index(enum, index) do
@@ -151,6 +159,10 @@ defmodule Enumx do
     raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
   end
 
+  def shift_first_match_left(%MapSet{}, _, _) do
+    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+  end
+
   def shift_first_match_left(enum, element_to_shift, compare_fn) do
     {enum, shifted?, index} =
       do_shift_first(enum, element_to_shift, compare_fn)
@@ -182,6 +194,10 @@ defmodule Enumx do
 
   def shift_first_match_right(enum, _, _) when is_plain_map(enum) do
     raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+  end
+
+  def shift_first_match_right(%MapSet{}, _, _) do
+    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
   end
 
   def shift_first_match_right(enum, element_to_shift, compare_fn) do
@@ -233,6 +249,10 @@ defmodule Enumx do
 
   def swap(enum, _i1, _i2) when is_plain_map(enum) do
     raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+  end
+
+  def swap(%MapSet{}, _, _) do
+    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
   end
 
   def swap(%{} = enum, i1, i2) do
