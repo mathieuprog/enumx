@@ -286,4 +286,11 @@ defmodule EnumxTest do
       swap!(entities, 3, 3)
     end
   end
+
+  test "join/3" do
+    assert "foo, bar and baz" == join(["foo", "bar", "baz"], ", ", " and ")
+    assert "foo and bar" == join(["foo", "bar"], ", ", " and ")
+    assert "foo" == join(["foo"], ", ", " and ")
+    assert "" == join([], ", ", " and ")
+  end
 end
