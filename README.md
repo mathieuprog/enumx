@@ -94,6 +94,17 @@ Swaps the elements at the given indices.
 assert Enumx.swap([1, 2, 3], 0, 2) == {:ok, [3, 2, 1], :swapped}
 ```
 
+## `join/3`
+
+Joins the elements of a list into a string, using the specified delimiter between elements and a different delimiter before the last element. This function is useful for formatting lists of items in natural language.
+
+```elixir
+assert "foo, bar and baz" == Enumx.join(["foo", "bar", "baz"], ", ", " and ")
+assert "foo and bar" == Enumx.join(["foo", "bar"], ", ", " and ")
+assert "foo" == Enumx.join(["foo"], ", ", " and ")
+assert "" == Enumx.join([], ", ", " and ")
+```
+
 ## `with_index_length/2`
 
 Returns tuples of each element, its index, and the total length of the enumerable.
