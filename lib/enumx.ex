@@ -304,4 +304,16 @@ defmodule Enumx do
         raise "index #{i2} (second index given) is out of bounds for enum of count #{count}"
     end
   end
+
+  def join(enum, join, last_join)
+      when is_list(enum) and is_binary(join) and is_binary(last_join) do
+    do_join(enum, join, last_join, "")
+  end
+
+  defp do_join([], _join, _last_join, acc), do: acc
+  defp do_join([head | tail], join, last_join, ""), do: do_join(tail, join, last_join, head)
+  defp do_join([last | []], _join, last_join, acc), do: acc <> last_join <> last
+
+  defp do_join([head | tail], join, last_join, acc),
+    do: do_join(tail, join, last_join, acc <> join <> head)
 end
