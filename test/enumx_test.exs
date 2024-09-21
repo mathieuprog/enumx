@@ -40,6 +40,14 @@ defmodule EnumxTest do
     assert [{:foo, 5, 3}, {:bar, 6, 3}, {:baz, 7, 3}] == with_index_length([:foo, :bar, :baz], 5)
   end
 
+  test "with_value/2" do
+    assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
+             Enumx.with_value(["foo", "bar", "baz"], &String.reverse/1)
+
+    assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
+             Enum.map(["foo", "bar", "baz"], &{&1, String.reverse(&1)})
+  end
+
   test "unique_value!/1" do
     assert_raise ArgumentError, fn ->
       unique_value!([])
