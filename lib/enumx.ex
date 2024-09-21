@@ -38,6 +38,17 @@ defmodule Enumx do
   end
 
   @doc """
+  Returns each element and the result of a function taking the element. A static value can also be added to each element.
+  """
+  def with_value(enum, fun) when is_function(fun, 1) do
+    Enum.map(enum, &{&1, fun.(&1)})
+  end
+
+  def with_value(enum, value) do
+    Enum.map(enum, &{&1, value})
+  end
+
+  @doc """
   Returns the single unique element if all elements in enumerable are equal; otherwise, raises an error.
   """
   def unique_value!([]),
