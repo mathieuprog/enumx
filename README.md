@@ -110,14 +110,30 @@ assert "" == Enumx.join([], ", ", " and ")
 Returns tuples of each element, its index, and the total length of the enumerable.
 
 ```elixir
-assert [{:foo, 0, 3}, {:bar, 1, 3}, {:baz, 2, 3}] == 
+assert [{:foo, 0, 3}, {:bar, 1, 3}, {:baz, 2, 3}] ==
           Enumx.with_index_length([:foo, :bar, :baz])
 
-assert [{:foo, 5, 3}, {:bar, 6, 3}, {:baz, 7, 3}] == 
+assert [{:foo, 5, 3}, {:bar, 6, 3}, {:baz, 7, 3}] ==
           Enumx.with_index_length([:foo, :bar, :baz], 5)
 
 assert [{3, 0, :foo}, {3, 1, :bar}, {3, 2, :baz}] ==
           Enumx.with_index_length([:foo, :bar, :baz], fn el, i, length -> {length, i, el} end)
+```
+
+## `with_value/2`
+
+Returns each element and the result of a function taking the element. A static value can also be added to each element.
+
+```elixir
+assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
+          Enumx.with_value(["foo", "bar", "baz"], &String.reverse/1)
+```
+
+This function adds semantics and reduces special characters, ideal for keeping code clear when used in templates, compared with the Enum.map equivalent:
+
+```elixir
+assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
+          Enum.map(["foo", "bar", "baz"], &{&1, String.reverse(&1)})
 ```
 
 ### Installation
