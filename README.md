@@ -132,8 +132,9 @@ assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
 This function adds semantics and reduces special characters, ideal for keeping code clear when used in templates, compared with the Enum.map equivalent:
 
 ```elixir
-assert [{"foo", "oof"}, {"bar", "rab"}, {"baz", "zab"}] ==
-          Enum.map(["foo", "bar", "baz"], &{&1, String.reverse(&1)})
+Enumx.with_value(["foo", "bar", "baz"], &String.reverse/1)
+
+Enum.map(["foo", "bar", "baz"], &{&1, String.reverse(&1)})
 ```
 
 ### Installation
