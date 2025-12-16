@@ -30,7 +30,8 @@ defmodule Enumx.MixProject do
 
   defp deps do
     [
-      {:ex_doc, "~> 0.34", only: :dev}
+      {:decimal, "~> 2.3", optional: true},
+      {:ex_doc, "~> 0.39", only: :dev}
     ]
   end
 

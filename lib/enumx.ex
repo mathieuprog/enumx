@@ -327,4 +327,16 @@ defmodule Enumx do
 
   defp do_join([head | tail], join, last_join, acc),
     do: do_join(tail, join, last_join, acc <> join <> head)
+
+  if Code.ensure_loaded?(Decimal) do
+    def decimal_sum(enum) do
+      Enum.reduce(enum, Decimal.new(0), &Decimal.add/2)
+    end
+
+    def decimal_sum_by(enum, fun) when is_function(fun, 1) do
+      Enum.reduce(enum, Decimal.new(0), fn element, acc ->
+        Decimal.add(acc, fun.(element))
+      end)
+    end
+  end
 end

@@ -301,4 +301,46 @@ defmodule EnumxTest do
     assert "foo" == join(["foo"], ", ", " and ")
     assert "" == join([], ", ", " and ")
   end
+
+  test "decimal_sum/1" do
+    assert Decimal.equal?(
+             decimal_sum([Decimal.new("1.5"), Decimal.new("2.5"), Decimal.new("3.0")]),
+             Decimal.new("7.0")
+           )
+
+    assert Decimal.equal?(decimal_sum([]), Decimal.new("0"))
+
+    assert Decimal.equal?(
+             decimal_sum([Decimal.new("-5"), Decimal.new("10")]),
+             Decimal.new("5")
+           )
+
+    assert Decimal.equal?(
+             decimal_sum([Decimal.new("0.1"), Decimal.new("0.2")]),
+             Decimal.new("0.3")
+           )
+  end
+
+  test "decimal_sum_by/2" do
+    items = [
+      %{price: Decimal.new("10.50")},
+      %{price: Decimal.new("20.25")},
+      %{price: Decimal.new("5.25")}
+    ]
+
+    assert Decimal.equal?(
+             decimal_sum_by(items, & &1.price),
+             Decimal.new("36.00")
+           )
+
+    assert Decimal.equal?(decimal_sum_by([], & &1.price), Decimal.new("0"))
+
+    # With keyword list
+    kw_items = [amount: Decimal.new("100"), amount: Decimal.new("200")]
+
+    assert Decimal.equal?(
+             decimal_sum_by(kw_items, fn {_k, v} -> v end),
+             Decimal.new("300")
+           )
+  end
 end
