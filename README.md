@@ -137,6 +137,36 @@ Enumx.with_value(["foo", "bar", "baz"], &String.reverse/1)
 Enum.map(["foo", "bar", "baz"], &{&1, String.reverse(&1)})
 ```
 
+## `decimal_sum/1`
+
+Sums all Decimal values in the enumerable. Requires the optional `decimal` dependency.
+
+```elixir
+assert Decimal.equal?(
+         Enumx.decimal_sum([Decimal.new("1.5"), Decimal.new("2.5"), Decimal.new("3.0")]),
+         Decimal.new("7.0")
+       )
+
+assert Decimal.equal?(Enumx.decimal_sum([]), Decimal.new("0"))
+```
+
+## `decimal_sum_by/2`
+
+Maps and sums Decimal values in the enumerable. Requires the optional `decimal` dependency.
+
+```elixir
+items = [
+  %{price: Decimal.new("10.50")},
+  %{price: Decimal.new("20.25")},
+  %{price: Decimal.new("5.25")}
+]
+
+assert Decimal.equal?(
+         Enumx.decimal_sum_by(items, & &1.price),
+         Decimal.new("36.00")
+       )
+```
+
 ### Installation
 
 Add `enumx` for Elixir as a dependency in your `mix.exs` file:
@@ -144,7 +174,7 @@ Add `enumx` for Elixir as a dependency in your `mix.exs` file:
 ```elixir
 def deps do
   [
-    {:enumx, "~> 0.7"}
+    {:enumx, "~> 0.8"}
   ]
 end
 ```
