@@ -105,6 +105,29 @@ defmodule Enumx do
     end
   end
 
+  @doc """
+  Finds the single element matching the predicate; raises if zero or multiple match.
+  """
+  def find_one!(enum, predicate) when is_function(predicate, 1) do
+    result =
+      Enum.reduce_while(enum, nil, fn element, acc ->
+        if predicate.(element) do
+          case acc do
+            nil -> {:cont, {:found, element}}
+            {:found, _} -> {:halt, :multiple}
+          end
+        else
+          {:cont, acc}
+        end
+      end)
+
+    case result do
+      nil -> raise ArgumentError, message: "no element matched"
+      {:found, element} -> element
+      :multiple -> raise ArgumentError, message: "expected single match, got multiple"
+    end
+  end
+
   def shift_left_by_index([], _index), do: {:error, [], :index_out_of_bounds}
 
   def shift_left_by_index(enum, _index) when is_plain_map(enum) do

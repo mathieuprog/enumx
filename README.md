@@ -64,6 +64,24 @@ assert_raise ArgumentError, fn ->
 end
 ```
 
+## `find_one!/2`
+
+Finds the single element matching the predicate; raises if zero or multiple elements match. Useful when you expect exactly one match.
+
+```elixir
+assert Enumx.find_one!([1, 2, 3], &(&1 == 2)) == 2
+
+assert Enumx.find_one!([%{id: 1}, %{id: 2}], &(&1.id == 1)) == %{id: 1}
+
+assert_raise ArgumentError, fn ->
+  Enumx.find_one!([1, 2, 3], &(&1 > 10)) # raises: no element matched
+end
+
+assert_raise ArgumentError, fn ->
+  Enumx.find_one!([1, 2, 3, 4], &(&1 > 1)) # raises: expected single match, got multiple
+end
+```
+
 ## `is_plain_map/1`
 
 Determines if the given term is a plain map (not a struct). It can be as a guard clause.

@@ -139,6 +139,34 @@ defmodule EnumxTest do
     end
   end
 
+  test "find_one!/2" do
+    # Single match returns element
+    assert find_one!([1, 2, 3], &(&1 == 2)) == 2
+    assert find_one!([%{id: 1}, %{id: 2}], &(&1.id == 2)) == %{id: 2}
+
+    # Works with ranges and streams
+    assert find_one!(1..10, &(&1 == 5)) == 5
+    assert find_one!(Stream.map(1..5, & &1), &(&1 == 3)) == 3
+
+    # Works with maps (finds matching {key, value} tuple)
+    assert find_one!(%{a: 1, b: 2, c: 3}, fn {_k, v} -> v == 2 end) == {:b, 2}
+
+    # No match raises
+    assert_raise ArgumentError, ~r/no element matched/, fn ->
+      find_one!([1, 2, 3], &(&1 > 10))
+    end
+
+    # Multiple matches raises
+    assert_raise ArgumentError, ~r/expected single match, got multiple/, fn ->
+      find_one!([1, 2, 3, 4], &(&1 > 1))
+    end
+
+    # Empty enumerable raises
+    assert_raise ArgumentError, ~r/no element matched/, fn ->
+      find_one!([], fn _ -> true end)
+    end
+  end
+
   test "shift_first_match_left/3 and shift_first_match_right/3" do
     entities = [%{id: 4}, %{id: 2}, %{id: 7}]
     entities_kw = [id: 4, id: 2, id: 7]
