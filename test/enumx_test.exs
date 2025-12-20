@@ -19,6 +19,12 @@ defmodule EnumxTest do
     assert all_equal?(foo: 1, foo: 1)
     refute all_equal?(foo: 1, foo: 2)
     refute all_equal?(foo: 1, bar: 1)
+
+    # Ranges and other enumerables
+    assert all_equal?(1..1)
+    refute all_equal?(1..5)
+    assert all_equal?(Stream.map([1, 1, 1], & &1))
+    refute all_equal?(Stream.map([1, 2, 3], & &1))
   end
 
   test "with_index_length/2" do
@@ -80,6 +86,10 @@ defmodule EnumxTest do
     assert unique_value!([1, 1]) == 1
     assert unique_value!(%{foo: 1}) == {:foo, 1}
     assert unique_value!(foo: 1, foo: 1) == {:foo, 1}
+
+    # Ranges and other enumerables
+    assert unique_value!(1..1) == 1
+    assert unique_value!(Stream.map([42, 42], & &1)) == 42
   end
 
   test "one!/1" do
@@ -340,6 +350,10 @@ defmodule EnumxTest do
     assert_raise ArgumentError, ~r/out of bounds/, fn ->
       swap!(entities, 3, 3)
     end
+
+    # Streams and other enumerables work correctly
+    stream = Stream.map([1, 2, 3, 4, 5], & &1)
+    assert {:ok, [1, 4, 3, 2, 5], :swapped} == swap(stream, 1, 3)
   end
 
   test "join/3" do

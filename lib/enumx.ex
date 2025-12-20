@@ -1,4 +1,7 @@
 defmodule Enumx do
+  @doc """
+  Determines if the given term is a plain map (not a struct). Can be used as a guard clause.
+  """
   defguard is_plain_map(term) when is_map(term) and not is_struct(term)
 
   @doc """
@@ -18,8 +21,12 @@ defmodule Enumx do
     Enum.all?(enum, &(&1 == first))
   end
 
-  def all_equal?(enum) when is_map(enum) do
+  def all_equal?(enum) when is_plain_map(enum) do
     all_equal?(Map.to_list(enum))
+  end
+
+  def all_equal?(enum) do
+    all_equal?(Enum.to_list(enum))
   end
 
   @doc """
@@ -62,8 +69,12 @@ defmodule Enumx do
     end
   end
 
-  def unique_value!(enum) when is_map(enum) do
+  def unique_value!(enum) when is_plain_map(enum) do
     unique_value!(Map.to_list(enum))
+  end
+
+  def unique_value!(enum) do
+    unique_value!(Enum.to_list(enum))
   end
 
   @doc """
@@ -104,7 +115,7 @@ defmodule Enumx do
     raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
-  def shift_left_by_index(enum, 0), do: {:ok, enum, :not_shifted}
+  def shift_left_by_index(enum, 0), do: {:ok, Enum.to_list(enum), :not_shifted}
 
   def shift_left_by_index(enum, index) do
     {enum, shifted?, _index} = do_shift_by_index(enum, index)
@@ -141,22 +152,23 @@ defmodule Enumx do
   end
 
   def shift_right_by_index(enum, index) do
-    index = Enum.count(enum) - index - 1
+    count = Enum.count(enum)
+    reversed_index = count - index - 1
 
-    {enum, shifted?, index} =
+    {result, shifted?, final_index} =
       enum
       |> Enum.reverse()
-      |> do_shift_by_index(index)
+      |> do_shift_by_index(reversed_index)
 
     cond do
       shifted? ->
-        {:ok, enum, :shifted}
+        {:ok, result, :shifted}
 
-      index == 0 ->
-        {:ok, enum, :not_shifted}
+      final_index == 0 ->
+        {:ok, Enum.to_list(enum), :not_shifted}
 
       true ->
-        {:error, enum, :index_out_of_bounds}
+        {:error, result, :index_out_of_bounds}
     end
   end
 
@@ -300,34 +312,34 @@ defmodule Enumx do
     raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
-  def swap(%{} = enum, i1, i2) do
-    swap(Enum.to_list(enum), i1, i2)
+  def swap(list, i1, i2) when is_list(list) do
+    e1 = Enum.at(list, i1, :none)
+    e2 = Enum.at(list, i2, :none)
+
+    do_swap(list, {i1, e1}, {i2, e2})
   end
 
   def swap(enum, i1, i2) do
-    e1 = Enum.at(enum, i1, :none)
-    e2 = Enum.at(enum, i2, :none)
-
-    do_swap(enum, {i1, e1}, {i2, e2})
+    swap(Enum.to_list(enum), i1, i2)
   end
 
-  def do_swap(enum, {_, :none}, _),
-    do: {:error, Enum.to_list(enum), :index_out_of_bounds}
+  defp do_swap(list, {_, :none}, _),
+    do: {:error, list, :index_out_of_bounds}
 
-  def do_swap(enum, _, {_, :none}),
-    do: {:error, Enum.to_list(enum), :index_out_of_bounds}
+  defp do_swap(list, _, {_, :none}),
+    do: {:error, list, :index_out_of_bounds}
 
-  def do_swap(enum, {i1, _e1}, {i1, _e2}) do
-    {:ok, Enum.to_list(enum), :not_swapped}
+  defp do_swap(list, {i1, _e1}, {i1, _e2}) do
+    {:ok, list, :not_swapped}
   end
 
-  def do_swap(enum, {i1, e1}, {i2, e2}) do
-    enum =
-      enum
+  defp do_swap(list, {i1, e1}, {i2, e2}) do
+    result =
+      list
       |> List.replace_at(i1, e2)
       |> List.replace_at(i2, e1)
 
-    {:ok, enum, :swapped}
+    {:ok, result, :swapped}
   end
 
   def swap!(enum, i1, i2) do
