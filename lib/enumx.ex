@@ -52,13 +52,13 @@ defmodule Enumx do
   Returns the single unique element if all elements in enumerable are equal; otherwise, raises an error.
   """
   def unique_value!([]),
-    do: raise(ArgumentError, message: "cannot call `unique_value!/1` on an empty enum")
+    do: raise(ArgumentError, message: "cannot get unique value from empty enumerable")
 
   def unique_value!(list) when is_list(list) do
     if all_equal?(list) do
       hd(list)
     else
-      raise "elements in the enum are not equal"
+      raise(ArgumentError, message: "elements in enumerable are not equal")
     end
   end
 
@@ -66,14 +66,42 @@ defmodule Enumx do
     unique_value!(Map.to_list(enum))
   end
 
+  @doc """
+  Returns the only element if the enumerable contains exactly one element; otherwise, raises.
+  """
+  def one!([]),
+    do: raise(ArgumentError, message: "expected single element, got none")
+
+  def one!([element]), do: element
+
+  def one!(list) when is_list(list),
+    do: raise(ArgumentError, message: "expected single element, got #{length(list)}")
+
+  def one!(map) when is_plain_map(map) and map_size(map) == 0,
+    do: raise(ArgumentError, message: "expected single element, got none")
+
+  def one!(map) when is_plain_map(map) and map_size(map) == 1,
+    do: map |> Map.to_list() |> hd()
+
+  def one!(map) when is_plain_map(map),
+    do: raise(ArgumentError, message: "expected single element, got #{map_size(map)}")
+
+  def one!(enum) do
+    case Enum.take(enum, 2) do
+      [] -> raise(ArgumentError, message: "expected single element, got none")
+      [element] -> element
+      [_, _] -> raise(ArgumentError, message: "expected single element, got multiple")
+    end
+  end
+
   def shift_left_by_index([], _index), do: {:error, [], :index_out_of_bounds}
 
   def shift_left_by_index(enum, _index) when is_plain_map(enum) do
-    raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on maps (unordered)"
   end
 
   def shift_left_by_index(%MapSet{}, _index) do
-    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
   def shift_left_by_index(enum, 0), do: {:ok, enum, :not_shifted}
@@ -98,18 +126,18 @@ defmodule Enumx do
         enum
 
       {:error, _, _} ->
-        raise "index #{index} is out of bounds for enum of count #{Enum.count(enum)}"
+        raise ArgumentError, message: "index #{index} out of bounds (size: #{Enum.count(enum)})"
     end
   end
 
   def shift_right_by_index([], _index), do: {:error, [], :index_out_of_bounds}
 
   def shift_right_by_index(enum, _index) when is_plain_map(enum) do
-    raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on maps (unordered)"
   end
 
   def shift_right_by_index(%MapSet{}, _index) do
-    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
   def shift_right_by_index(enum, index) do
@@ -138,7 +166,7 @@ defmodule Enumx do
         enum
 
       {:error, _, _} ->
-        raise "index #{index} is out of bounds for enum of count #{Enum.count(enum)}"
+        raise ArgumentError, message: "index #{index} out of bounds (size: #{Enum.count(enum)})"
     end
   end
 
@@ -167,11 +195,11 @@ defmodule Enumx do
   def shift_first_match_left([], _, _), do: {:error, [], :element_not_found}
 
   def shift_first_match_left(enum, _, _) when is_plain_map(enum) do
-    raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on maps (unordered)"
   end
 
   def shift_first_match_left(%MapSet{}, _, _) do
-    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
   def shift_first_match_left(enum, element_to_shift, compare_fn) do
@@ -194,8 +222,11 @@ defmodule Enumx do
 
   def shift_first_match_left!(enum, element_to_shift, compare_fn \\ &(&1 == &2)) do
     case shift_first_match_left(enum, element_to_shift, compare_fn) do
-      {:ok, enum, _} -> enum
-      {:error, _, _} -> raise "element #{inspect(element_to_shift)} not found in the enum"
+      {:ok, enum, _} ->
+        enum
+
+      {:error, _, _} ->
+        raise ArgumentError, message: "element #{inspect(element_to_shift)} not found"
     end
   end
 
@@ -204,11 +235,11 @@ defmodule Enumx do
   def shift_first_match_right([], _, _), do: {:error, [], :element_not_found}
 
   def shift_first_match_right(enum, _, _) when is_plain_map(enum) do
-    raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on maps (unordered)"
   end
 
   def shift_first_match_right(%MapSet{}, _, _) do
-    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
   def shift_first_match_right(enum, element_to_shift, compare_fn) do
@@ -231,8 +262,11 @@ defmodule Enumx do
 
   def shift_first_match_right!(enum, element_to_shift, compare_fn \\ &(&1 == &2)) do
     case shift_first_match_right(enum, element_to_shift, compare_fn) do
-      {:ok, enum, _} -> enum
-      {:error, _, _} -> raise "element #{inspect(element_to_shift)} not found in the enum"
+      {:ok, enum, _} ->
+        enum
+
+      {:error, _, _} ->
+        raise ArgumentError, message: "element #{inspect(element_to_shift)} not found"
     end
   end
 
@@ -259,11 +293,11 @@ defmodule Enumx do
   def swap([], _i1, _i2), do: {:error, [], :index_out_of_bounds}
 
   def swap(enum, _i1, _i2) when is_plain_map(enum) do
-    raise "should not be called on maps because maps are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on maps (unordered)"
   end
 
   def swap(%MapSet{}, _, _) do
-    raise "should not be called on MapSets because MapSets are unordered, making index-based operations inapplicable"
+    raise ArgumentError, message: "index-based operations not supported on MapSet (unordered)"
   end
 
   def swap(%{} = enum, i1, i2) do
@@ -305,14 +339,14 @@ defmodule Enumx do
         count = Enum.count(enum)
 
         if i1 > count - 1 && i2 > count - 1 do
-          raise "index #{i1} and #{i2} are out of bounds for enum of count #{count}"
+          raise ArgumentError, message: "indices #{i1} and #{i2} out of bounds (size: #{count})"
         end
 
         if i1 > count - 1 do
-          raise "index #{i1} (first index given) is out of bounds for enum of count #{count}"
+          raise ArgumentError, message: "index #{i1} out of bounds (size: #{count})"
         end
 
-        raise "index #{i2} (second index given) is out of bounds for enum of count #{count}"
+        raise ArgumentError, message: "index #{i2} out of bounds (size: #{count})"
     end
   end
 

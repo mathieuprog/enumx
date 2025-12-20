@@ -49,37 +49,84 @@ defmodule EnumxTest do
   end
 
   test "unique_value!/1" do
-    assert_raise ArgumentError, fn ->
+    assert_raise ArgumentError, ~r/empty enumerable/, fn ->
       unique_value!([])
     end
 
-    assert_raise ArgumentError, fn ->
+    assert_raise ArgumentError, ~r/empty enumerable/, fn ->
       unique_value!(%{})
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise ArgumentError, ~r/not equal/, fn ->
       unique_value!(1..5)
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise ArgumentError, ~r/not equal/, fn ->
       unique_value!([1, 1, 2, 1])
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise ArgumentError, ~r/not equal/, fn ->
       unique_value!(foo: 1, bar: 1)
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise ArgumentError, ~r/not equal/, fn ->
       unique_value!(foo: 1, foo: 2)
     end
 
-    assert_raise RuntimeError, fn ->
+    assert_raise ArgumentError, ~r/not equal/, fn ->
       unique_value!(%{foo: 1, bar: 1})
     end
 
     assert unique_value!([1, 1]) == 1
     assert unique_value!(%{foo: 1}) == {:foo, 1}
     assert unique_value!(foo: 1, foo: 1) == {:foo, 1}
+  end
+
+  test "one!/1" do
+    # Empty enumerables raise
+    assert_raise ArgumentError, ~r/got none/, fn ->
+      one!([])
+    end
+
+    assert_raise ArgumentError, ~r/got none/, fn ->
+      one!(%{})
+    end
+
+    # Single element returns the element
+    assert one!([42]) == 42
+    assert one!([:foo]) == :foo
+    assert one!([%{id: 1}]) == %{id: 1}
+
+    # Single element map returns {key, value} tuple
+    assert one!(%{foo: 1}) == {:foo, 1}
+
+    # Keyword list with single element
+    assert one!(foo: 42) == {:foo, 42}
+
+    # Range with single element
+    assert one!(1..1) == 1
+
+    # Multiple elements raise
+    assert_raise ArgumentError, ~r/expected single element, got 2/, fn ->
+      one!([1, 2])
+    end
+
+    assert_raise ArgumentError, ~r/expected single element, got 3/, fn ->
+      one!([1, 2, 3])
+    end
+
+    assert_raise ArgumentError, ~r/expected single element, got 2/, fn ->
+      one!(%{foo: 1, bar: 2})
+    end
+
+    assert_raise ArgumentError, ~r/expected single element, got multiple/, fn ->
+      one!(1..5)
+    end
+
+    # Keyword list with multiple elements
+    assert_raise ArgumentError, ~r/expected single element, got 2/, fn ->
+      one!(foo: 1, bar: 2)
+    end
   end
 
   test "shift_first_match_left/3 and shift_first_match_right/3" do
@@ -89,11 +136,11 @@ defmodule EnumxTest do
     assert {:error, [], :element_not_found} ==
              shift_first_match_left([], %{id: 2}, &(&1.id == &2.id))
 
-    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
+    assert_raise ArgumentError, ~r/not supported on maps/, fn ->
       shift_first_match_left(%{}, {:id, 2}, &(&1.id == &2.id))
     end
 
-    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+    assert_raise ArgumentError, ~r/not supported on MapSet/, fn ->
       shift_first_match_left(MapSet.new([1, 2]), 2)
     end
 
@@ -121,7 +168,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :element_not_found} ==
              shift_first_match_left(1..5, 8)
 
-    assert_raise RuntimeError, ~r/not found/, fn ->
+    assert_raise ArgumentError, ~r/not found/, fn ->
       shift_first_match_left!(entities, %{id: 8}, &(&1.id == &2.id))
     end
 
@@ -131,11 +178,11 @@ defmodule EnumxTest do
     assert {:error, [], :element_not_found} ==
              shift_first_match_right([], %{id: 2}, &(&1.id == &2.id))
 
-    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
+    assert_raise ArgumentError, ~r/not supported on maps/, fn ->
       shift_first_match_right(%{}, {:id, 2}, &(&1.id == &2.id))
     end
 
-    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+    assert_raise ArgumentError, ~r/not supported on MapSet/, fn ->
       shift_first_match_right(MapSet.new([1, 2]), 2)
     end
 
@@ -160,7 +207,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :element_not_found} ==
              shift_first_match_right(1..5, 8)
 
-    assert_raise RuntimeError, ~r/not found/, fn ->
+    assert_raise ArgumentError, ~r/not found/, fn ->
       shift_first_match_right!(entities, %{id: 8}, &(&1.id == &2.id))
     end
 
@@ -177,11 +224,11 @@ defmodule EnumxTest do
     assert {:error, [], :index_out_of_bounds} ==
              shift_left_by_index([], 5)
 
-    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
+    assert_raise ArgumentError, ~r/not supported on maps/, fn ->
       shift_left_by_index(%{}, 5)
     end
 
-    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+    assert_raise ArgumentError, ~r/not supported on MapSet/, fn ->
       shift_left_by_index(MapSet.new([1, 2]), 0)
     end
 
@@ -206,7 +253,7 @@ defmodule EnumxTest do
     assert {:error, [1, 2, 3, 4, 5], :index_out_of_bounds} ==
              shift_left_by_index(1..5, 8)
 
-    assert_raise RuntimeError, ~r/out of bounds/, fn ->
+    assert_raise ArgumentError, ~r/out of bounds/, fn ->
       shift_left_by_index!(entities, 3)
     end
 
@@ -219,11 +266,11 @@ defmodule EnumxTest do
     assert {:error, [], :index_out_of_bounds} ==
              shift_right_by_index([], 5)
 
-    assert_raise RuntimeError, ~r/^should not be called on maps/, fn ->
+    assert_raise ArgumentError, ~r/not supported on maps/, fn ->
       shift_right_by_index(%{}, 5)
     end
 
-    assert_raise RuntimeError, ~r/^should not be called on MapSets/, fn ->
+    assert_raise ArgumentError, ~r/not supported on MapSet/, fn ->
       shift_right_by_index(MapSet.new([1, 2]), 0)
     end
 
@@ -254,7 +301,7 @@ defmodule EnumxTest do
     assert {:ok, [1, 2, 3, 4, 5], :not_shifted} ==
              shift_right_by_index(1..5, 4)
 
-    assert_raise RuntimeError, ~r/out of bounds/, fn ->
+    assert_raise ArgumentError, ~r/out of bounds/, fn ->
       shift_right_by_index!(entities, 3)
     end
 
@@ -282,15 +329,15 @@ defmodule EnumxTest do
 
     assert [1, 4, 3, 2, 5] = swap!(1..5, 1, 3)
 
-    assert_raise RuntimeError, ~r/out of bounds/, fn ->
+    assert_raise ArgumentError, ~r/out of bounds/, fn ->
       swap!(entities, 1, 3)
     end
 
-    assert_raise RuntimeError, ~r/out of bounds/, fn ->
+    assert_raise ArgumentError, ~r/out of bounds/, fn ->
       swap!(entities, 3, 1)
     end
 
-    assert_raise RuntimeError, ~r/out of bounds/, fn ->
+    assert_raise ArgumentError, ~r/out of bounds/, fn ->
       swap!(entities, 3, 3)
     end
   end

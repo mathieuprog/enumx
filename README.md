@@ -36,11 +36,31 @@ assert Enumx.unique_value!(%{foo: 1}) == {:foo, 1}
 assert Enumx.unique_value!([foo: 1, foo: 1]) == {:foo, 1}
 
 assert_raise ArgumentError, fn ->
-  Enumx.unique_value!([]) # raises error: cannot call `unique_value!/1` on an empty list
+  Enumx.unique_value!([]) # raises: cannot get unique value from empty enumerable
 end
 
-assert_raise RuntimeError, fn ->
-  Enumx.unique_value!([1, 2]) # raises error: elements in the list [1, 2] are not equal
+assert_raise ArgumentError, fn ->
+  Enumx.unique_value!([1, 2]) # raises: elements in enumerable are not equal
+end
+```
+
+## `one!/1`
+
+Returns the only element if the enumerable contains exactly one element; otherwise, raises. Similar to `Repo.one!/1` in Ecto.
+
+```elixir
+assert Enumx.one!([42]) == 42
+
+assert Enumx.one!(%{foo: 1}) == {:foo, 1}
+
+assert Enumx.one!(1..1) == 1
+
+assert_raise ArgumentError, fn ->
+  Enumx.one!([]) # raises: expected single element, got none
+end
+
+assert_raise ArgumentError, fn ->
+  Enumx.one!([1, 2, 3]) # raises: expected single element, got 3
 end
 ```
 
